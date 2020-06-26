@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,5 +15,27 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
-});
+    return view('guest.welcome');
+})->name('home');
+
+
+
+Auth::routes();
+
+//Guest
+Route::get('posts', 'PostController@index')->name('posts.index');
+
+
+//ADMIN protetto
+Route::prefix('admin')
+    ->name('admin.')  //aggiunge il prefisso admin nella rotta
+    ->namespace('Admin')  //dove trovare controller nella rotta
+    ->middleware('auth') //proteggiamo
+    ->group(function() {
+        Route::get('/home', 'HomeController@index')->name('home');
+        Route::resource('posts', 'PostController');
+
+    });
+
+
+
