@@ -34,6 +34,7 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav mr-auto">
                         <a href="{{route('admin.posts.index')}}" class="nav-link">Post Archive</a>
+                        <a href="{{route('admin.posts.create')}}" class="nav-link">New Post</a>
                         <a href="{{route('home')}}" class="nav-link">View Site</a>
                     </ul>
 
