@@ -8,6 +8,9 @@ use App\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\NewPost;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UpdatedPost;
 
 class PostController extends Controller
 {
@@ -63,6 +66,8 @@ class PostController extends Controller
         $saved = $newPost->save(); //metodo x salvare
 
         if($saved) {
+            Mail::to('user@test.com')->send(new NewPost($newPost));
+
             return redirect()->route('admin.posts.show', $newPost->id); //ritorna alla show
         }
         
@@ -119,6 +124,8 @@ class PostController extends Controller
         $updated = $post->update($data);  //metodo update per aggiornare
 
         if($updated) {
+
+            Mail::to('send@test.it')->send(new UpdatedPost($post)); //passa tutto in post
             return redirect()->route('admin.posts.show', $post->id);
         }
     }
@@ -139,8 +146,11 @@ class PostController extends Controller
         $deleted = $post->delete(); // metodi di eloquent
 
         if($deleted) {
-            return  redirect()->route('admin.posts.index')->with('post-deleted', $title); //come richiamiamo
+            if(!empty($post->path_img)){
+                Storage::disk('public')->delete('post->path_img'); //cancello effettivamente nella public
+            }
         }
+        return  redirect()->route('admin.posts.index')->with('post-deleted', $title); //come richiamiamo
     }
 
     // Validation rules
