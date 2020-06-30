@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
@@ -50,7 +51,12 @@ class PostController extends Controller
 
         $data['user_id'] = Auth::id();
         $data['slug'] = Str::slug($data['title'], '-');
-        
+
+        //add new image
+        if (!empty ($data['path_img'])) {
+            $data['path_img'] = Storage::disk('public')->put('images', $data['path_img']); //salviamo la path nel db, sostituisce con quello che ggiungiamo
+        }
+
 
         $newPost = new Post ();
         $newPost->fill($data); //stampa solo quelli dichiarati in fillable
@@ -96,6 +102,20 @@ class PostController extends Controller
         $request->validate($this->validationRules());
         $data = $request->all();
         $data['slug'] = Str::slug($data['title'], '-');
+
+        //edit image
+        if (!empty($data['path_img'])) {
+            
+            //delete previous image
+            if (!empty($post->path_img)) {
+                Storage::disk('public')->delete('post->path_img');
+            }
+
+            //add a new one
+            $data['path_img'] = Storage::disk('public')->put('images', $data['path_img']);
+
+        }
+
         $updated = $post->update($data);  //metodo update per aggiornare
 
         if($updated) {
@@ -129,7 +149,8 @@ class PostController extends Controller
     {
         return [
             'title' => 'required',
-            'body' => 'required'
+            'body' => 'required',
+            'path_img' => 'image'
         ];
     }
 }
